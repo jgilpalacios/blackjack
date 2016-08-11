@@ -1,0 +1,17 @@
+body {
+ font-size: 6pt;
+}
+#flvPlayer{
+  width:160px;
+  height:130px;  
+}
+#cod_video{
+  width:160px;
+  height:130px; 
+}
+.cab{
+  font-size:inherit;
+}
+#topsecret{
+    font-size: 20pt;
+}

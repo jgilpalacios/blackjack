@@ -1,0 +1,14 @@
+body {
+ font-size: 8pt;
+}
+#flvPlayer{
+  width:240px;
+  height:195px;  
+}
+#cod_video{
+  width:240px;
+  height:195px; 
+}
+#topsecret{
+    font-size: 30pt;
+}

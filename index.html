@@ -1,0 +1,218 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>BlackJack</title>
+<link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/
+css?family=Caesar+Dressing' rel='stylesheet'
+type='text/css'>
+<link rel="stylesheet" type="text/css" href="css/estilos.css">
+<link rel="stylesheet" type="text/css" href="css/m-estilos.css" media="only screen and (max-device-whidth:800px)">
+<link rel="stylesheet" type="text/css" href="css/e-estilos.css" media="only screen and (max-device-whidth:480px)">
+<script type="text/javascript" src="Proyecto.js"></script>
+<script type="text/javascript">
+var jughtml='<div class="cccc">JUGX: <input maxlength="20" size="20" name="j0" id="j0" value=""><div class="cont2">APUESTA:<input maxlength="2" size="2" name="apuesta" value="0" id="aX"> PIDE:<input name="pide" value="pide" type="checkbox" id="pX">ASEGURA:<input name="asegura" value="asegura" type="checkbox" id="asX"><br>'+
+	'</div><br/>'+
+	'<div class="cont1"><img src="imagenes/1.svg" alt="uno"  width="50%" id="cX1"><img src="imagenes/diamantes.svg" alt="diamantes" width="50%"></div>'+
+	'<div class="cont1"><img src="imagenes/3.svg" alt="uno"  width="50%" id="cX2"><img src="imagenes/picas.svg" alt="picas" width="50%"></div>'+
+	'<br/><br/>'+
+	'</div>';
+function ponJugadores(){
+	var aux=[];
+	document.getElementById("cr").innerHTML='';
+	for (var i=0;i<6;i++){
+		document.getElementById("car"+i).innerHTML='';
+		document.getElementById("caja"+i).innerHTML='Bolsa: '+'100';
+		apuestas[i]=0;
+		asegurar[i]=false;
+		pedir[i]=false;
+		if(document.getElementById("j"+i).value!=''){
+			aux[aux.length]=document.getElementById("j"+i).value;
+		}
+	}
+	if (aux.length>0){//si hay datos
+		jugadores=[];
+		for(var i=0;i<aux.length;i++){
+			jugadores[i]={nombre: aux[i], bolsa:100};
+			document.getElementById("j"+i).value=aux[i];
+		}
+		for(var i=jugadores.length;i<6;i++){
+			document.getElementById("j"+i).value='';
+		}
+	}else{ 
+		for(var i=0;i<jugadores.length;i++){
+			document.getElementById("j"+i).value=jugadores[i].nombre;
+		}
+		for(var i=jugadores.length;i<6;i++){
+			document.getElementById("j"+i).value='';
+		}
+	}
+}
+function apuesta(objeto,n){
+	if (n<jugadores.length){
+		apuestas[n]=+objeto.value;
+		//alert(apuestas[n]);
+	}
+}
+function pide(objeto,n){
+	if (n<jugadores.length){
+		pedir[n]=objeto.checked;
+		//alert(pedir[n]);
+	}
+}
+function asegura(objeto,n){
+	if (n<jugadores.length){
+		asegurar[n]=objeto.checked;
+		//alert(asegurar[n]);
+	}
+}
+function MuestraLasCartas(tapada){
+	var njugada=jugadas.length-1;
+	var texto='';
+	for (var i=0;i<jugadores.length;i++){
+		texto='';
+		for(var j=0;j<jugadas[njugada].cartas[i].length;j++){//alert('hola'+jugadores.length);
+			texto+='<div class="cont1"><img src="imagenes/'+jugadas[njugada].cartas[i][j].valor+'.svg" width="50%"><img src="imagenes/'+jugadas[njugada].cartas[i][j].palo+'.svg" width="50%"></div>';
+		}
+		document.getElementById("car"+i).innerHTML=texto;
+	}
+	texto='';
+	for(var j=0;j<jugadas[njugada].croupier.length;j++){
+		if(j==0&&tapada) texto+='<div class="cont1"><img src="imagenes/reverso1.svg" width="50%"><img src="imagenes/reverso2.svg" width="50%"></div>';
+		else texto+='<div class="cont1"><img src="imagenes/'+jugadas[njugada].croupier[j].valor+'.svg" width="50%"><img src="imagenes/'+jugadas[njugada].croupier[j].palo+'.svg" width="50%"></div>';
+	}
+	document.getElementById("cr").innerHTML=texto;
+}
+function limpiaCartas(){
+	for (var i=0;i<jugadores.length;i++){
+		document.getElementById("car"+i).innerHTML='';//se borran las cartas
+		asegurar=[false, false, false, false, false, false];//se reinician los seguros
+		pedir=[false, false, false, false, false, false];//se reinician las peticiones
+	}
+	document.getElementById("cr").innerHTML='';
+}
+function cambiaEstado(est){
+	var njugada=jugadas.length-1;
+	if(est==2){
+		if(jugadas[njugada].croupier[1].valor===1||jugadas[njugada].croupier[1].valor>9){//se muestra opcion asegurar
+			estado=3;
+		}else{//se pasa a pedir cartas
+			Croupier.asegurar();//se lanza el proceso asegurar ya que paga los blackjacks de salida
+			ponCaja();//se muestra cuanto tiene cada jugador.
+			estado=4;
+		}
+	}else if(est==1){
+		var sehaapostado=false;
+		for (var i=0;i<jugadores.length;i++){
+			sehaapostado=sehaapostado||apuestas[i];
+			if(sehaapostado){//si se ha hecho al menos una apuesta pasamos a jugar
+				estado=2;
+				break;
+			}
+		}
+		if(!sehaapostado)alert('Para poder iniciar la nueva partida álguien debe apostar.');
+	}
+}
+function ponCaja(){//alert('ll');
+	for (var i=0;i<jugadores.length;i++){
+		document.getElementById("caja"+i).innerHTML='Bolsa: '+jugadores[i].bolsa;
+	}
+}
+var estado=0;// 0:poner jugadores, 1: apostar, 2:iniciar jugada, 2:asegurando, 4:pidiendo cartas.
+function preparaInterfaz(){
+	var njugada=jugadas.length-1;
+	switch(estado){
+		case 0:document.getElementById('AccCroupier').innerHTML='';
+		for (var i=0;i<jugadores.length;i++){
+			document.getElementById('Asegurador'+i).innerHTML='';
+			document.getElementById('Pedidor'+i).innerHTML='';
+			document.getElementById('apostador'+i).innerHTML='';
+		};break;
+		case 1:document.getElementById('AccCroupier').innerHTML='<button name="Fin apostar" type="button" onclick="Croupier.limpiar();limpiaCartas(true);cambiaEstado(1);preparaInterfaz();">Fin apostar.</button>';
+		for (var i=0;i<jugadores.length;i++){
+			document.getElementById('Asegurador'+i).innerHTML='';
+			document.getElementById('Pedidor'+i).innerHTML='';
+			document.getElementById('apostador'+i).innerHTML='APUESTA:<input maxlength="2" size="2" name="apuesta" value="'+apuestas[i]+'" onchange="apuesta(this,'+i+')">';
+		};break;
+		case 2:document.getElementById('AccCroupier').innerHTML='<button name="Iniciar" type="button" onclick="Croupier.iniciaJugada();MuestraLasCartas(true);cambiaEstado(2);preparaInterfaz()">Iniciar.</button>';
+		for (var i=0;i<jugadores.length;i++){
+			document.getElementById('Asegurador'+i).innerHTML='';
+			document.getElementById('Pedidor'+i).innerHTML='';
+			document.getElementById('apostador'+i).innerHTML='APUESTA: '+apuestas[i]+'€';
+		};break;
+		case 3:document.getElementById('AccCroupier').innerHTML='<button name="Asegurar" type="button" onclick="Croupier.asegurar();if(Croupier.puntuarBlacJack(jugadas[jugadas.length-1].croupier)==21)MuestraLasCartas();ponCaja();estado=4;preparaInterfaz()">Asegurar.</button>';
+		for (var i=0;i<jugadores.length;i++){
+			if(apuestas[i]>0){
+				document.getElementById('Asegurador'+i).innerHTML='ASEGURA:<input name="asegura" value="asegura" type="checkbox" onchange="asegura(this,'+i+')">';
+			}else{
+				document.getElementById('Asegurador'+i).innerHTML='<br>';
+			}
+			document.getElementById('Pedidor'+i).innerHTML='';
+			document.getElementById('apostador'+i).innerHTML='APUESTA: '+apuestas[i]+'€';
+		};break;
+		case 4:document.getElementById('AccCroupier').innerHTML='<button name="+Carta" type="button" onclick="Croupier.continuar();preparaInterfaz();MuestraLasCartas(true);">+Carta.</button><button name="Finalizar" type="button" onclick="Croupier.finalizar();MuestraLasCartas();ponCaja();estado=1;preparaInterfaz()">Finalizar.</button>';
+		for (var i=0;i<jugadores.length;i++){
+			document.getElementById('Asegurador'+i).innerHTML='';
+			if(jugadas[njugada].activo[i]) {//alert(jugadas[njugada].activo[i]);
+				pedir[i]=false;
+				if(apuestas[i]>0){
+					document.getElementById('Pedidor'+i).innerHTML='PIDE:<input name="pide" value="pide" type="checkbox" onchange="pide(this,'+i+')">';
+				}else document.getElementById('Pedidor'+i).innerHTML='<br>';
+			}else{
+				document.getElementById('Pedidor'+i).innerHTML='<br>';
+			}			
+			document.getElementById('apostador'+i).innerHTML='APUESTA: '+apuestas[i]+'€';
+		};break;
+	
+	}
+}
+</script>
+</head>
+<body onload="preparaInterfaz()">
+	<div class="cccc"><b>Croupier: </b><button value="Nuevos Jugadores" name="Nuevos Jugadores" type="button" onclick="ponJugadores();estado=1;preparaInterfaz()">Nuevos Jugadores.</button><span id="AccCroupier"></span>
+		<!--<button value="Nuevos Jugadores" name="Iniciar" type="button" onclick="Croupier.iniciaJugada();MuestraLasCartas(true);">Iniciar.</button>
+		<button value="Nuevos Jugadores" name="Asegurar" type="button" onclick="Croupier.asegurar();if(Croupier.puntuarBlacJack(jugadas[jugadas.length-1].croupier)==21)MuestraLasCartas();ponCaja()">Asegurar.</button>
+		<button value="Nuevos Jugadores" name="+Carta" type="button" onclick="Croupier.continuar();MuestraLasCartas(true);">+Carta.</button>
+		<button value="Nuevos Jugadores" name="Finalizar" type="button" onclick="Croupier.finalizar();MuestraLasCartas();ponCaja();">Finalizar.</button><br/>-->
+	<span id=cr></span>
+	<br/><br/>
+	</div>
+	<div class="cccc">JUG0: <input maxlength="20" size="20" name="j0" id="j0" value="">
+	<div class="cont2"><span id="apostador0"></span> <span id="Pedidor0"></span><b><span  id="caja0">Bolsa: 0</span>€.</b> <span id="Asegurador0"></span><br>
+	</div><br/>
+	<span id=car0></span>
+	<br/><br/>
+	</div>
+	<div class="cccc">JUG1: <input maxlength="20" size="20" name="j1" id="j1" value="">
+	<div class="cont2"><span id="apostador1"></span> <span id="Pedidor1"></span><b><span  id="caja1">Bolsa: 0</span>€.</b> <span id="Asegurador1"></span><br>
+</div><br/>
+	<span id=car1></span>
+	<br/><br/>
+	</div>
+	<div class="cccc">JUG2: <input maxlength="20" size="20" name="j2" id="j2" value="">
+	<div class="cont2"><span id="apostador2"></span> <span id="Pedidor2"></span><b><span  id="caja2">Bolsa: 0</span>€.</b> <span id="Asegurador2"></span><br>
+</div><br/>
+	<span id=car2></span>
+	<br/><br/>
+	</div>
+	<div class="cccc">JUG3: <input maxlength="20" size="20" name="j3" id="j3" value="">
+	<div class="cont2"><span id="apostador3"></span> <span id="Pedidor3"></span><b><span  id="caja3">Bolsa: 0</span>€.</b> <span id="Asegurador3"></span><br>
+</div><br/>
+	<span id=car3></span>
+	<br/><br/>
+	</div>
+	<div class="cccc">JUG4: <input maxlength="20" size="20" name="j4" id="j4" value="">
+	<div class="cont2"><span id="apostador4"></span> <span id="Pedidor4"></span><b><span  id="caja4">Bolsa: 0</span>€.</b> <span id="Asegurador4"></span><br>
+</div><br/>
+	<span id=car4></span>
+	<br/><br/>
+	</div>
+	<div class="cccc">JUG5: <input maxlength="20" size="20" name="j5" id="j5" value="">
+	<div class="cont2"><span id="apostador5"></span> <span id="Pedidor5"></span><b><span  id="caja5">Bolsa: 0</span>€.</b> <span id="Asegurador5"></span><br>
+</div><br/>
+	<span id=car5></span>
+	<br/><br/>
+	</div>
+</body>
+</html>
