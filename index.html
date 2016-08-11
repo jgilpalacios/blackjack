@@ -10,6 +10,19 @@ type='text/css'>
 <link rel="stylesheet" type="text/css" href="css/estilos.css">
 <link rel="stylesheet" type="text/css" href="css/m-estilos.css" media="only screen and (max-device-whidth:800px)">
 <link rel="stylesheet" type="text/css" href="css/e-estilos.css" media="only screen and (max-device-whidth:480px)">
+<style>
+*{
+    padding:0px;
+    margin: 0px;
+    -webkit-touch-callout: none; /* anula el efecto visual del touch prolongado sobre el objeto */
+
+    user-select: none; /* user-select, hace el objeto no seleccionable */
+
+    -webkit-tap-highlight-color: rgba(0,0,0,0); /* anula el feedback de color al hacer tap en un link */
+    -webkit-tap-highlight-color: transparent; /* similar anterior en algunos android */
+}
+</style>
+<script src="cordova.js"></script>
 <script type="text/javascript" src="Proyecto.js"></script>
 <script type="text/javascript">
 var jughtml='<div class="cccc">JUGX: <input maxlength="20" size="20" name="j0" id="j0" value=""><div class="cont2">APUESTA:<input maxlength="2" size="2" name="apuesta" value="0" id="aX"> PIDE:<input name="pide" value="pide" type="checkbox" id="pX">ASEGURA:<input name="asegura" value="asegura" type="checkbox" id="asX"><br>'+
