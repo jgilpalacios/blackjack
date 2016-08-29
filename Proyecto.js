@@ -135,9 +135,15 @@ var Croupier={
 		//jugadas[jugadas.length]={ apuestas:[], cartas:[], asegura:[], activo: [], pagado: [], croupier:[], finalizada: false };
 		for (var i=0;i<jugadores.length;i++){
 			jugadas[jugadas.length-1].apuestas[i]=apuestas[i];
-			jugadas[jugadas.length-1].cartas[i]=Croupier.repartir(2);
-			jugadas[jugadas.length-1].activo[i]=true;
-			jugadas[jugadas.length-1].pagado[i]=false;
+			if(apuestas[i]>0){
+				jugadas[jugadas.length-1].cartas[i]=Croupier.repartir(2);
+				jugadas[jugadas.length-1].activo[i]=true;
+				jugadas[jugadas.length-1].pagado[i]=false;
+			}else{
+				jugadas[jugadas.length-1].cartas[i]=[];
+				jugadas[jugadas.length-1].activo[i]=true;
+				jugadas[jugadas.length-1].pagado[i]=true;
+			}
 			//console.log(jugadas[jugadas.length-1].cartas[i]);
 		}
 		jugadas[jugadas.length-1].croupier=Croupier.repartir(2);
@@ -281,9 +287,3 @@ var asegurar=[false, false, false, false, false, false];
 var pedir=[true,true,false,false,true,false];
 
 
-
-Croupier.iniciaJugada();
-Croupier.muestraJugada(true);
-//console.log(pedir);
-//Croupier.continuar();
-//Croupier.muestraJugada(true);
